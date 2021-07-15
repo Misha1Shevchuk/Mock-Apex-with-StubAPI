@@ -16,11 +16,15 @@ public class StubMockProvider implements System.StubProvider {
     }
 
     public Object handleMethodCall(Object stubbedObject, String stubbedMethodName, Type returnType,
-            List<System.Type> listOfParamTypes, List<String> listOfParamNames, List<Object> listOfArgs) {
+        List<System.Type> listOfParamTypes, List<String> listOfParamNames, List<Object> listOfArgs
+    ) {
 
         for (MockedMethod mockedMethod : mockedMethods) {
-            if (mockedMethod.methodName.toLowerCase() != stubbedMethodName.toLowerCase()) continue;
-            if (mockedMethod.paramsByNames.size() != listOfParamNames.size()) continue;
+            if (mockedMethod.methodName.toLowerCase() != stubbedMethodName.toLowerCase()
+                || mockedMethod.paramsByNames.size() != listOfParamNames.size()
+            ) {
+                continue;
+            }
 
             Boolean paramsMatch = true;
 
