@@ -18,7 +18,6 @@ public class StubMockProvider implements System.StubProvider {
     public Object handleMethodCall(Object stubbedObject, String stubbedMethodName, Type returnType,
         List<System.Type> listOfParamTypes, List<String> listOfParamNames, List<Object> listOfArgs
     ) {
-
         for (MockedMethod mockedMethod : mockedMethods) {
             if (mockedMethod.methodName.toLowerCase() != stubbedMethodName.toLowerCase()
                 || mockedMethod.paramsByNames.size() != listOfParamNames.size()
