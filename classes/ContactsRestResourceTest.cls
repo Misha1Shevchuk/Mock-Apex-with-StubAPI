@@ -1,5 +1,5 @@
 @IsTest
-private class ContactsRestServiceTest {
+private class ContactsRestResourceTest {
 
     @IsTest
     static void getRecordsSuccess() {
@@ -10,16 +10,17 @@ private class ContactsRestServiceTest {
 
         StubMockProvider stubProvider = new StubMockProvider();
 
-        ContactsRestService.contactDao = (ContactDAO) stubProvider.createStub(ContactDAO.class);
+        ContactsRestResource.contactDao = (ContactDao) stubProvider.createStub(ContactDao.class);
 
-        StubMockProvider.MockedMethod getContactsWithLimitMock = new StubMockProvider.MockedMethod('getContactsWithLimit')
-                .withParam(new StubMockProvider.Param(Integer.class, 'maxRecords', 2))
+        StubMockProvider.MockedMethod getContactsWithLimitMock = 
+                new StubMockProvider.MockedMethod('getContactsWithLimit')
+                .withParam(Integer.class, 2)
                 .returning(contacts);
 
         stubProvider.mockMethod(getContactsWithLimitMock);
 
         Test.startTest();
-            List<Contact> result = ContactsRestService.getRecords();
+            List<Contact> result = ContactsRestResource.getRecords();
         Test.stopTest();
 
         System.assert(!result.isEmpty());
@@ -29,16 +30,17 @@ private class ContactsRestServiceTest {
 
     @IsTest
     static void getRecordsShouldBeError() {
-        ContactsRestService.NUMBER_OF_RECORDS_TO_QUERY = null;
+        ContactsRestResource.numberOfRecordsToQuery = null;
 
         StubMockProvider stubProvider = new StubMockProvider();
-        ContactsRestService.contactDao = (ContactDAO) stubProvider.createStub(ContactDAO.class);
+        ContactsRestResource.contactDao = (ContactDao) stubProvider.createStub(ContactDao.class);
 
         String errorMessage = 'Custom Error message';
 
-        StubMockProvider.MockedMethod getContactsWithLimitMock = new StubMockProvider.MockedMethod('getContactsWithLimit')
-                .withParam(new StubMockProvider.Param(Integer.class, 'maxRecords', null))
-                .throwing(errorMessage);
+        StubMockProvider.MockedMethod getContactsWithLimitMock = 
+                new StubMockProvider.MockedMethod('getContactsWithLimit')
+                .withParam(Integer.class, null)
+                .throwing(new CustomException(errorMessage));
 
         stubProvider.mockMethod(getContactsWithLimitMock);
 
@@ -46,13 +48,16 @@ private class ContactsRestServiceTest {
 
         Test.startTest();
             try {
-                ContactsRestService.getRecords();
-            } catch (StubMockProvider.MockedException error) {
+                ContactsRestResource.getRecords();
+            } catch (CustomException error) {
                 result = error.getMessage();
             }
         Test.stopTest();
 
         System.assert(!String.isBlank(result));
         System.assertEquals(errorMessage, result);
+    }
+
+    class CustomException extends Exception {
     }
 }

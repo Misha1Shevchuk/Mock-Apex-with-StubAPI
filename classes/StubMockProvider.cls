@@ -8,19 +8,20 @@ public class StubMockProvider implements System.StubProvider {
     }
 
     public void mockMethod(MockedMethod mockedMethod) {
-        this.mockedMethods.add(mockedMethod);
+        mockedMethods.add(mockedMethod);
     }
 
     public void mockMethods(List<MockedMethod> mockedMethods) {
-        this.mockedMethods.addAll(mockedMethods);
+        mockedMethods.addAll(mockedMethods);
     }
 
-    public Object handleMethodCall(Object stubbedObject, String stubbedMethodName, Type returnType,
-        List<System.Type> listOfParamTypes, List<String> listOfParamNames, List<Object> listOfArgs
+    public Object handleMethodCall( 
+        Object stubbedObject, String stubbedMethodName, Type returnType, List<Type> listOfParamTypes, 
+        List<String> listOfParamNames, List<Object> listOfArgs
     ) {
         for (MockedMethod mockedMethod : mockedMethods) {
             if (mockedMethod.methodName.toLowerCase() != stubbedMethodName.toLowerCase()
-                || mockedMethod.paramsByNames.size() != listOfParamNames.size()
+                || mockedMethod.params.size() != listOfParamNames.size()
             ) {
                 continue;
             }
@@ -29,15 +30,11 @@ public class StubMockProvider implements System.StubProvider {
 
             for (Integer i = 0; i < listOfParamNames.size(); i++) {
                 Type stubbedParamType = listOfParamTypes[i];
-                String stubbedParamName = listOfParamNames[i];
-                Object stubbedArg = listOfArgs[i];
+                Object stubbedParamValue = listOfArgs[i];
 
-                StubMockProvider.Param param;
+                Param methodParam = mockedMethod.params[i];
 
-                if (mockedMethod.paramsByNames.containsKey(stubbedParamName.toLowerCase())) {
-                    param = mockedMethod.paramsByNames.get(stubbedParamName.toLowerCase());
-                }
-                if (stubbedParamType != param.type || stubbedParamName != param.name || stubbedArg != param.value) {
+                if (methodParam.type != stubbedParamType && methodParam.value != stubbedParamValue) {
                     paramsMatch = false;
                     break;
                 }
@@ -48,73 +45,101 @@ public class StubMockProvider implements System.StubProvider {
             }
         }
 
-        String errorMessage = 'Method {0} is not mocked. Verify method name and parameters';
+        String errorMessage = 'Method {0} is not mocked correctly. Verify method name and parameters';
         throw new StubMockProviderException(String.format(errorMessage, new List<String>{ stubbedMethodName }));
     }
 
     public class MockedMethod {
 
+        Integer calledNTimes = 0;
         String methodName;
         Object valueToReturn;
-        Boolean doThrowException = false;
-        String errorMessage = '';
+        Exception exceptionInstance;
 
-        Map<String, StubMockProvider.Param> paramsByNames = new Map<String, StubMockProvider.Param>();
+        List<Param> params = new List<Param>();
 
         public MockedMethod(String methodName) {
             this.methodName = methodName;
         }
 
-        public MockedMethod withParams(List<Param> params) {
-            for (Param param : params) {
-                this.withParam(param);
-            }
+        public MockedMethod withParam(Type type, Object value) {
+            params.add(new Param(type, value));
 
             return this;
         }
 
         public MockedMethod withParam(Param param) {
-            this.paramsByNames.put(param.name.toLowerCase(), param);
+            params.add(param);
 
             return this;
         }
 
-        public MockedMethod returning(Object returnValue) {
-            this.valueToReturn = returnValue;
+        public MockedMethod withParams(List<Param> params) {
+            params.addAll(params);
 
             return this;
         }
 
-        public MockedMethod throwing(String errorMessage) {
-            this.doThrowException = true;
-            this.errorMessage = errorMessage;
+        public MockedMethod withParams(Param p1, Param p2) {
+            params.addAll(new List<Param>{p1, p2});
+
+            return this;
+        }
+
+        public MockedMethod withParams(Param p1, Param p2, Param p3) {
+            params.addAll(new List<Param>{p1, p2, p3});
+
+            return this;
+        }
+
+        public MockedMethod withParams(Param p1, Param p2, Param p3, Param p4) {
+            params.addAll(new List<Param>{p1, p2, p3, p4});
+
+            return this;
+        }
+
+        public MockedMethod withParams(Param p1, Param p2, Param p3, Param p4, Param p5) {
+            params.addAll(new List<Param>{p1, p2, p3, p4, p5});
+
+            return this;
+        }
+
+        public MockedMethod returning(Object valueToReturn) {
+            this.valueToReturn = valueToReturn;
+
+            return this;
+        }
+
+        public MockedMethod throwing(Exception exceptionInstance) {
+            this.exceptionInstance = exceptionInstance;
 
             return this;
         }
 
         public Object handleCall() {
-            if (doThrowException) {
-                throw new MockedException(errorMessage);
+            calledNTimes++;
+
+            if (exceptionInstance != null) {
+                throw exceptionInstance;
             }
 
             return valueToReturn;
+        }
+
+        public Integer getCalledNTimes() {
+            return calledNTimes;
         }
     }
 
     public class Param {
 
         public Type type { public get; private set; }
-        public String name { public get; private set; }
         public Object value { public get; private set; }
 
-        public Param(Type type, String name, Object value) {
+        public Param(Type type, Object value) {
             this.type = type;
-            this.name = name;
             this.value = value;
         }
-    }
-
-    public class MockedException extends Exception {
     }
 
     public class StubMockProviderException extends Exception {
