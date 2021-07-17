@@ -68,38 +68,48 @@ public class StubMockProvider implements System.StubProvider {
             return this;
         }
 
-        public MockedMethod withParam(Param param) {
-            params.add(param);
+        public MockedMethod withParam(Object paramValue) {
+            Type paramType = Type.forName(Utils.getObjectType(paramValue));
+            
+            withParam(paramType, paramValue);
 
             return this;
         }
 
-        public MockedMethod withParams(List<Param> params) {
-            params.addAll(params);
+        public MockedMethod withParams(List<Object> params) {
+            for (Object param : params) {
+                withParam(param);
+            }
 
             return this;
         }
 
-        public MockedMethod withParams(Param p1, Param p2) {
-            params.addAll(new List<Param>{p1, p2});
+        public MockedMethod withParams(Object p1, Object p2) {
+            withParams(new List<Object>{p1, p2});
 
             return this;
         }
 
-        public MockedMethod withParams(Param p1, Param p2, Param p3) {
-            params.addAll(new List<Param>{p1, p2, p3});
+        public MockedMethod withParams(Object p1, Object p2, Object p3) {
+            withParams(new List<Object>{p1, p2, p3});
 
             return this;
         }
 
-        public MockedMethod withParams(Param p1, Param p2, Param p3, Param p4) {
-            params.addAll(new List<Param>{p1, p2, p3, p4});
+        public MockedMethod withParams(Object p1, Object p2, Object p3, Object p4) {
+            withParams(new List<Object>{p1, p2, p3, p4});
 
             return this;
         }
 
-        public MockedMethod withParams(Param p1, Param p2, Param p3, Param p4, Param p5) {
-            params.addAll(new List<Param>{p1, p2, p3, p4, p5});
+        public MockedMethod withParams(Object p1, Object p2, Object p3, Object p4, Object p5) {
+            withParams(new List<Object>{p1, p2, p3, p4, p5});
+
+            return this;
+        }
+
+        public MockedMethod withParams(Object p1, Object p2, Object p3, Object p4, Object p5, Object p6) {
+            withParams(new List<Object>{p1, p2, p3, p4, p5, p6});
 
             return this;
         }

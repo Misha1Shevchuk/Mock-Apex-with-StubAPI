@@ -13,9 +13,7 @@ private class ContactsRestResourceTest {
         ContactsRestResource.contactDao = (ContactDao) stubProvider.createStub(ContactDao.class);
 
         StubMockProvider.MockedMethod getContactsWithLimitMock = 
-                new StubMockProvider.MockedMethod('getContactsWithLimit')
-                .withParam(Integer.class, 2)
-                .returning(contacts);
+                new StubMockProvider.MockedMethod('getContactsWithLimit').withParam(2).returning(contacts);
 
         stubProvider.mockMethod(getContactsWithLimitMock);
 
